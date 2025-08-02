@@ -1,0 +1,281 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title> {% block title %}{% endblock title %} - Portfolio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static "css/output.css" %}">
+    <style>
+        :root {
+            --primary-light: #eff6ff;
+            --sidebar-width: 280px;
+            --header-height: 70px;
+            --card-radius: 12px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: linear-gradient(180deg, var(--primary-color) 0%, #1d4ed8 100%);
+            transition: var(--transition);
+            box-shadow: var(--shadow-lg);
+            transform: translateX(-100%);
+            z-index: 1000;
+        }
+
+        .sidebar-open {
+            transform: translateX(0);
+        }
+
+        .sidebar-header {
+            height: var(--header-height);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-item {
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-item.active {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .nav-item.active:before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background: white;
+        }
+
+        .nav-icon {
+            min-width: 24px;
+            transition: var(--transition);
+        }
+
+        .badge {
+            font-size: 0.65rem;
+            padding: 2px 6px;
+        }
+
+        /* Main Content */
+        .main-content {
+            width: 100%;
+            transition: var(--transition);
+        }
+
+        .header {
+            height: var(--header-height);
+            box-shadow: var(--shadow);
+        }
+
+        /* Cards */
+        .card {
+            border-radius: var(--card-radius);
+            transition: var(--transition);
+            box-shadow: var(--shadow);
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+        }
+
+        /* Charts */
+        .chart-container {
+            height: 260px;
+        }
+
+        /* Table */
+        .table-row:hover {
+            background-color: #f8fafc;
+        }
+
+        /* Custom Scrollbar */
+        .custom-scroll::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        .custom-scroll::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+
+        /* Status Badges */
+        .status-badge {
+            font-size: 0.7rem;
+            padding: 3px 8px;
+        }
+
+        /* Overlay for mobile menu */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+        }
+
+        .sidebar-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Responsive adjustments */
+        @media (min-width: 768px) {
+            .sidebar {
+                transform: translateX(0);
+                position: fixed;
+            }
+            
+            .main-content {
+                margin-left: var(--sidebar-width);
+            }
+            
+            .mobile-menu-btn {
+                display: none;
+            }
+            
+            .sidebar-overlay {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body class="antialiased font-[Poppins]">
+    <div class="flex min-h-screen">
+        <!-- Sidebar Overlay (Mobile Only) -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+        <!-- Sidebar -->
+        {% include "partials/sidebar.html" %}
+
+        <!-- Main Content Area -->
+        <div class="main-content flex-1 min-h-screen">
+            <!-- Top Navigation -->
+            <nav class="header bg-white px-6 flex items-center justify-between sticky top-0 z-40">
+                <div class="flex items-center">
+                    <button id="mobileMenuButton" class="mobile-menu-btn text-slate-600 mr-4 focus:outline-none">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h2 class="text-xl font-semibold text-slate-800">Dashboard</h2>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2">
+                        <div class="relative">
+                            <img src="https://ui-avatars.com/api/?name=Admin+User&background=3b82f6&color=fff" alt="User" class="rounded-full w-9 h-9">
+                            <span class="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-emerald-500 border-2 border-white"></span>
+                        </div>
+                        <span class="hidden md:inline text-sm font-medium">Brighton Brown</span>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Dashboard Content -->
+            <main class="p-6">
+                {% block content %}{% endblock content %}
+            </main>
+        </div>
+    </div>
+
+    {% comment %} Notification Popup Container {% endcomment %}
+    <div id="message-popup-container" class="fixed top-4 right-4 z-[9999] w-full max-w-xs space-y-3 pointer-events-none"></div>
+    
+    <style>
+        /* Notification animations */
+        .message {
+            will-change: transform, opacity;
+        }
+        
+        .message-progress-bar {
+            will-change: width;
+        }
+        
+    </style>
+
+    <script src="{% static "js/notifications.js" %}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.querySelector('.sidebar');
+            const mobileMenuButton = document.getElementById('mobileMenuButton');
+            const closeSidebar = document.getElementById('closeSidebar');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            
+            // Mobile menu toggle
+            mobileMenuButton.addEventListener('click', function() {
+                sidebar.classList.add('sidebar-open');
+                sidebarOverlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            });
+            
+            // Close sidebar
+            closeSidebar.addEventListener('click', function() {
+                sidebar.classList.remove('sidebar-open');
+                sidebarOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+            });
+            
+            // Close sidebar when clicking on overlay
+            sidebarOverlay.addEventListener('click', function() {
+                sidebar.classList.remove('sidebar-open');
+                sidebarOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+            });
+            
+            // Close mobile menu when clicking on a link
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    if (window.innerWidth < 768) {
+                        sidebar.classList.remove('sidebar-open');
+                        sidebarOverlay.classList.remove('active');
+                        document.body.style.overflow = '';
+                    }
+                });
+            });
+            
+            // Add focus styles for accessibility
+            document.querySelectorAll('button, a, input, select, textarea').forEach(el => {
+                el.addEventListener('focus', function() {
+                    this.classList.add('ring-2', 'ring-blue-500', 'ring-opacity-50');
+                });
+                el.addEventListener('blur', function() {
+                    this.classList.remove('ring-2', 'ring-blue-500', 'ring-opacity-50');
+                });
+            });
+        });
+    </script>
+</body>
+</html>
