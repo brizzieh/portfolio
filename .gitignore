@@ -1,0 +1,86 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+*.pdb
+
+# Virtual environment
+env/
+venv/
+ENV/
+VENV/
+.venv/
+.python-version
+
+# Django
+*.log
+*.pot
+*.pyc
+db.sqlite3
+db.sqlite3-journal
+media/
+staticfiles/
+local_settings.py
+
+# Django migrations (optional)
+*/migrations/__pycache__/
+*/migrations/*.py[cod]
+*/migrations/*.py
+!*/migrations/__init__.py
+
+# API related
+*.swagger
+*.postman_collection.json
+
+# Environment variables
+.env
+.env.*
+.envrc
+
+# Node (if using for frontend)
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# macOS
+.DS_Store
+
+# Linux
+*~
+
+# Windows
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# Coverage reports
+.coverage
+htmlcov/
+.coverage.*
+
+# Test output
+pytest_cache/
+nosetests.xml
+coverage.xml
+test-results/
+
+# MyPy & Pylint
+.mypy_cache/
+.pyright/
+.pylint.d/
+
+# VS Code Python settings
+.vscode/settings.json
+
+# Pip cache
+pip-log.txt
+pip-delete-this-directory.txt
