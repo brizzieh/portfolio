@@ -36,7 +36,7 @@ local_settings.py
 
 # Environment variables
 .env
-.env.*
+# .env.*
 .envrc
 
 # Node (if using for frontend)
