@@ -45,7 +45,7 @@
                 <ul class="space-y-1">
                     <!-- Projects -->
                     <li>
-                        <a href="#" class="nav-item flex items-center p-3 rounded-lg text-sm hover:bg-white/10 transition-colors {% if 'projects' in request.path %}bg-white/15{% endif %}">
+                        <a href="{% url 'projects:list' %}" class="nav-item flex items-center p-3 rounded-lg text-sm hover:bg-white/10 transition-colors {% if 'projects' in request.path %}bg-white/15{% endif %}">
                             <div class="nav-icon w-6 h-6 rounded-lg flex items-center justify-center mr-2 {% if 'projects' in request.path %}text-white{% else %}text-white/70{% endif %}">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <polyline points="6 3 6 8 18 8 18 3"></polyline>
@@ -82,7 +82,7 @@
                     
                     <!-- Resume -->
                     <li>
-                        <a href="#" class="nav-item flex items-center p-3 rounded-lg text-sm hover:bg-white/10 transition-colors {% if request.path == '/resume' %}bg-white/15{% endif %}">
+                        <a href="{% url "resumes:view" %}" class="nav-item flex items-center p-3 rounded-lg text-sm hover:bg-white/10 transition-colors {% if request.path == '/resume' %}bg-white/15{% endif %}">
                             <div class="nav-icon w-6 h-6 rounded-lg flex items-center justify-center mr-2 {% if request.path == '/resume' %}text-white{% else %}text-white/70{% endif %}">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
@@ -104,7 +104,7 @@
                 <ul class="space-y-1">
                     <!-- Contacts -->
                     <li>
-                        <a href="#" class="nav-item flex items-center p-3 rounded-lg text-sm hover:bg-white/10 transition-colors {% if 'contacts' in request.path %}bg-white/15{% endif %}">
+                        <a href="{% url 'contacts:contact_list' %}" class="nav-item flex items-center p-3 rounded-lg text-sm hover:bg-white/10 transition-colors {% if 'contacts' in request.path %}bg-white/15{% endif %}">
                             <div class="nav-icon w-6 h-6 rounded-lg flex items-center justify-center mr-2 {% if 'contacts' in request.path %}text-white{% else %}text-white/70{% endif %}">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
