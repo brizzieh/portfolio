@@ -1,0 +1,280 @@
+{% extends "layouts/_base.html" %}
+{% block title %}{{ form_title }}{% endblock title %}
+{% block content %}
+
+<div class="w-full px-4">
+    <!-- Form Header -->
+    <div class="flex justify-between items-center mb-6">
+        <div class="space-y-1">
+            <h1 class="text-2xl font-bold text-gray-900">{{ form_title }}</h1>
+            <p class="text-gray-600 text-sm">Fill in the details below to {{ action_description }} your project</p>
+        </div>
+        <a href="{% url 'projects:list' %}" 
+           class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+            <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to Projects
+        </a>
+    </div>
+
+    <!-- Form Container -->
+    <div class="bg-white rounded-xl border border-gray-200">
+        <form method="POST" enctype="multipart/form-data" class="p-6">
+            {% csrf_token %}
+            
+            <div class="space-y-6">
+                <!-- Project Title and URL Row -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Project Title -->
+                    <div class="space-y-2">
+                        <label for="title" class="block text-sm font-medium text-gray-700">
+                            Project Title <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                            </div>
+                            <input type="text" id="title" name="title" value="{{ project.title|default:'' }}" 
+                                   class="block w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
+                                   placeholder="Enter project title" required>
+                        </div>
+                    </div>
+
+                    <!-- Project URL -->
+                    <div class="space-y-2">
+                        <label for="url" class="block text-sm font-medium text-gray-700">
+                            Project URL
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                                </svg>
+                            </div>
+                            <input type="url" id="url" name="url" value="{{ project.url|default:'' }}" 
+                                   class="block w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
+                                   placeholder="https://example.com">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Project Description -->
+                <div class="space-y-2">
+                    <label for="description" class="block text-sm font-medium text-gray-700">
+                        Project Description <span class="text-red-500">*</span>
+                    </label>
+                    <div class="relative">
+                        <div class="absolute top-3 left-3 pointer-events-none">
+                            <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                            </svg>
+                        </div>
+                        <textarea id="description" name="description" rows="5"
+                                  class="block w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none"
+                                  placeholder="Describe your project in detail..." required>{{ project.description|default:'' }}</textarea>
+                    </div>
+                    <p class="text-xs text-gray-500">Briefly describe your project, technologies used, and your role</p>
+                </div>
+
+                <!-- Project Image -->
+                <div class="space-y-4">
+                    <label for="image" class="block text-sm font-medium text-gray-700">
+                        Project Image <span class="text-red-500">*</span>
+                    </label>
+                    
+                    <!-- Image Preview -->
+                    <div id="imagePreview" class="hidden mb-4">
+                        <div class="relative w-full max-w-md">
+                            <img id="preview" class="w-full h-64 object-cover rounded-lg border border-gray-200" src="" alt="Project preview">
+                            <button type="button" id="removeImage" class="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full shadow-lg hover:bg-red-600 transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Current Image (for updates) -->
+                    {% if project and project.image %}
+                    <div id="currentImage" class="mb-4">
+                        <p class="text-sm text-gray-600 mb-2">Current Image:</p>
+                        <div class="relative w-full max-w-md">
+                            <img class="w-full h-64 object-cover rounded-lg border border-gray-200" src="{{ project.image.url }}" alt="{{ project.title }}">
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- File Upload Area -->
+                    <div id="uploadArea" class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors cursor-pointer">
+                        <input type="file" id="image" name="image" accept="image/*" class="hidden" {% if not project or not project.image %}required{% endif %}>
+                        <div class="space-y-3">
+                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            <div class="space-y-1">
+                                <p class="text-sm text-gray-600">
+                                    <span class="font-medium text-blue-600">Click to upload</span> or drag and drop
+                                </p>
+                                <p class="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="flex justify-end items-center mt-8 pt-6 border-t border-gray-200 space-x-4">
+                <button type="reset" 
+                        class="px-6 py-3 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                    Reset Form
+                </button>
+                <button type="submit" 
+                        class="px-6 py-3 border border-transparent rounded-lg text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors">
+                    <div class="flex items-center">
+                        <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        {{ submit_button_text }}
+                    </div>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const imageInput = document.getElementById('image');
+        const uploadArea = document.getElementById('uploadArea');
+        const imagePreview = document.getElementById('imagePreview');
+        const previewImg = document.getElementById('preview');
+        const removeImageBtn = document.getElementById('removeImage');
+        const currentImage = document.getElementById('currentImage');
+        
+        // Handle file selection
+        uploadArea.addEventListener('click', () => imageInput.click());
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('border-blue-400', 'bg-blue-50');
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('border-blue-400', 'bg-blue-50');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('border-blue-400', 'bg-blue-50');
+            
+            if (e.dataTransfer.files.length) {
+                imageInput.files = e.dataTransfer.files;
+                handleImageSelection(e.dataTransfer.files[0]);
+            }
+        });
+        
+        imageInput.addEventListener('change', (e) => {
+            if (e.target.files.length) {
+                handleImageSelection(e.target.files[0]);
+            }
+        });
+        
+        function handleImageSelection(file) {
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                
+                reader.onload = (e) => {
+                    previewImg.src = e.target.result;
+                    imagePreview.classList.remove('hidden');
+                    uploadArea.classList.add('hidden');
+                    
+                    // Hide current image if updating
+                    if (currentImage) {
+                        currentImage.classList.add('hidden');
+                    }
+                };
+                
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        // Remove selected image
+        removeImageBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            imageInput.value = '';
+            imagePreview.classList.add('hidden');
+            uploadArea.classList.remove('hidden');
+            
+            // Show current image again if updating
+            if (currentImage) {
+                currentImage.classList.remove('hidden');
+            }
+        });
+        
+        // Form validation
+        const form = document.querySelector('form');
+        form.addEventListener('submit', function(e) {
+            let isValid = true;
+            const title = document.getElementById('title');
+            const description = document.getElementById('description');
+            
+            // Reset previous error states
+            document.querySelectorAll('.error-message').forEach(el => el.remove());
+            document.querySelectorAll('.border-red-500').forEach(el => {
+                el.classList.remove('border-red-500');
+                el.classList.add('border-gray-300');
+            });
+            
+            // Validate title
+            if (!title.value.trim()) {
+                showError(title, 'Project title is required');
+                isValid = false;
+            }
+            
+            // Validate description
+            if (!description.value.trim()) {
+                showError(description, 'Project description is required');
+                isValid = false;
+            }
+            
+            // Validate image (only for new projects)
+            {% if not project or not project.image %}
+            if (!imageInput.files.length && !previewImg.src) {
+                showError(uploadArea, 'Project image is required');
+                isValid = false;
+            }
+            {% endif %}
+            
+            if (!isValid) {
+                e.preventDefault();
+                
+                // Scroll to first error
+                const firstError = document.querySelector('.border-red-500');
+                if (firstError) {
+                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+        });
+        
+        function showError(element, message) {
+            element.classList.remove('border-gray-300');
+            element.classList.add('border-red-500');
+            
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message text-red-500 text-xs mt-1 flex items-center';
+            errorDiv.innerHTML = `
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                ${message}
+            `;
+            
+            element.parentNode.appendChild(errorDiv);
+        }
+    });
+</script>
+
+{% endblock content %}
