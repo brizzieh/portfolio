@@ -1,0 +1,275 @@
+{% extends "layouts/_base.html" %}
+{% block title %}{{ form_title }}{% endblock title %}
+{% block content %}
+
+<div class="w-full px-4">
+    <!-- Form Header -->
+    <div class="flex justify-between items-center mb-6">
+        <div class="space-y-1">
+            <h1 class="text-2xl font-bold text-gray-900">{{ form_title }}</h1>
+            <p class="text-gray-600 text-sm">Fill in the details below to {{ action_description }} your resume</p>
+        </div>
+        <a href="{% url 'resumes:list' %}" 
+           class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+            <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to Resumes
+        </a>
+    </div>
+
+    <!-- Form Container -->
+    <div class="bg-white rounded-xl border border-gray-200">
+        <form method="POST" enctype="multipart/form-data" class="p-6">
+            {% csrf_token %}
+            
+            <div class="space-y-6">
+                <!-- Resume Title -->
+                <div class="space-y-2">
+                    <label for="title" class="block text-sm font-medium text-gray-700">
+                        Resume Title <span class="text-red-500">*</span>
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                        </div>
+                        <input type="text" id="title" name="title" value="{{ resume.title|default:'' }}" 
+                               class="block w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
+                               placeholder="Enter resume title" required>
+                    </div>
+                </div>
+
+                <!-- Resume File -->
+                <div class="space-y-4">
+                    <label for="file" class="block text-sm font-medium text-gray-700">
+                        Resume File <span class="text-red-500">*</span>
+                    </label>
+                    
+                    <!-- Current File (for updates) -->
+                    {% if resume and resume.file %}
+                    <div id="currentFile" class="mb-4">
+                        <p class="text-sm text-gray-600 mb-2">Current File:</p>
+                        <div class="flex items-center space-x-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                            <svg class="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">{{ resume.file.name|cut:"resumes/" }}</p>
+                                <p class="text-xs text-gray-500">Uploaded {{ resume.uploaded_at|date:"M d, Y" }}</p>
+                            </div>
+                            <a href="{{ resume.file.url }}" target="_blank" class="ml-auto text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                View File
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- File Upload Area -->
+                    <div id="uploadArea" class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors cursor-pointer">
+                        <input type="file" id="file" name="file" accept=".pdf,.doc,.docx" class="hidden" {% if not resume or not resume.file %}required{% endif %}>
+                        <div class="space-y-3">
+                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+                            </svg>
+                            <div class="space-y-1">
+                                <p class="text-sm text-gray-600">
+                                    <span class="font-medium text-blue-600">Click to upload</span> or drag and drop
+                                </p>
+                                <p class="text-xs text-gray-500">PDF, DOC, DOCX up to 10MB</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- File Preview -->
+                    <div id="filePreview" class="hidden mb-4">
+                        <div class="flex items-center space-x-3 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                            <svg class="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            <div class="flex-1">
+                                <p id="fileName" class="text-sm font-medium text-gray-900"></p>
+                                <p id="fileSize" class="text-xs text-gray-500"></p>
+                            </div>
+                            <button type="button" id="removeFile" class="text-red-600 hover:text-red-800">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active Status -->
+                <div class="flex items-center">
+                    <input type="checkbox" id="is_active" name="is_active" {% if resume.is_active or not resume %}checked{% endif %} 
+                           class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                    <label for="is_active" class="ml-2 block text-sm text-gray-700">
+                        Set as active resume
+                    </label>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="flex justify-end items-center mt-8 pt-6 border-t border-gray-200 space-x-4">
+                <a href="{% url 'resumes:list' %}" 
+                   class="px-6 py-3 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                    Cancel
+                </a>
+                <button type="submit" 
+                        class="px-6 py-3 border border-transparent rounded-lg text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors">
+                    <div class="flex items-center">
+                        <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        {{ submit_button_text }}
+                    </div>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const fileInput = document.getElementById('file');
+        const uploadArea = document.getElementById('uploadArea');
+        const filePreview = document.getElementById('filePreview');
+        const fileName = document.getElementById('fileName');
+        const fileSize = document.getElementById('fileSize');
+        const removeFileBtn = document.getElementById('removeFile');
+        const currentFile = document.getElementById('currentFile');
+        
+        // Handle file selection
+        uploadArea.addEventListener('click', () => fileInput.click());
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('border-blue-400', 'bg-blue-50');
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('border-blue-400', 'bg-blue-50');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('border-blue-400', 'bg-blue-50');
+            
+            if (e.dataTransfer.files.length) {
+                fileInput.files = e.dataTransfer.files;
+                handleFileSelection(e.dataTransfer.files[0]);
+            }
+        });
+        
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length) {
+                handleFileSelection(e.target.files[0]);
+            }
+        });
+        
+        function handleFileSelection(file) {
+            if (file) {
+                // Validate file type
+                const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+                const fileExtension = file.name.toLowerCase().split('.').pop();
+                const allowedExtensions = ['pdf', 'doc', 'docx'];
+                
+                if (!allowedExtensions.includes(fileExtension)) {
+                    alert('Please upload a PDF, DOC, or DOCX file.');
+                    fileInput.value = '';
+                    return;
+                }
+                
+                // Show file preview
+                fileName.textContent = file.name;
+                fileSize.textContent = formatFileSize(file.size);
+                filePreview.classList.remove('hidden');
+                uploadArea.classList.add('hidden');
+                
+                // Hide current file if updating
+                if (currentFile) {
+                    currentFile.classList.add('hidden');
+                }
+            }
+        }
+        
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        // Remove selected file
+        removeFileBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            fileInput.value = '';
+            filePreview.classList.add('hidden');
+            uploadArea.classList.remove('hidden');
+            
+            // Show current file again if updating
+            if (currentFile) {
+                currentFile.classList.remove('hidden');
+            }
+        });
+        
+        // Form validation
+        const form = document.querySelector('form');
+        form.addEventListener('submit', function(e) {
+            let isValid = true;
+            const title = document.getElementById('title');
+            
+            // Reset previous error states
+            document.querySelectorAll('.error-message').forEach(el => el.remove());
+            document.querySelectorAll('.border-red-500').forEach(el => {
+                el.classList.remove('border-red-500');
+                el.classList.add('border-gray-300');
+            });
+            
+            // Validate title
+            if (!title.value.trim()) {
+                showError(title, 'Resume title is required');
+                isValid = false;
+            }
+            
+            // Validate file (only for new resumes or when replacing)
+            {% if not resume or not resume.file %}
+            if (!fileInput.files.length) {
+                showError(uploadArea, 'Resume file is required');
+                isValid = false;
+            }
+            {% endif %}
+            
+            if (!isValid) {
+                e.preventDefault();
+                
+                // Scroll to first error
+                const firstError = document.querySelector('.border-red-500');
+                if (firstError) {
+                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+        });
+        
+        function showError(element, message) {
+            element.classList.remove('border-gray-300');
+            element.classList.add('border-red-500');
+            
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message text-red-500 text-xs mt-1 flex items-center';
+            errorDiv.innerHTML = `
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                ${message}
+            `;
+            
+            element.parentNode.appendChild(errorDiv);
+        }
+    });
+</script>
+
+{% endblock content %}

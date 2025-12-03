@@ -1,0 +1,243 @@
+{% extends "layouts/_base.html" %}
+{% block title %}{{ form_title }}{% endblock title %}
+{% block content %}
+
+<div class="w-full px-4 py-8">
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ form_title }}</h1>
+                    <p class="text-gray-600">Fill in the details to {{ form_title|lower }} your skill</p>
+                </div>
+                <a href="{% url 'skills:list' %}" 
+                   class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                    <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    Back to Skills
+                </a>
+            </div>
+        </div>
+
+        <!-- Form Container -->
+        <div class="bg-white rounded-2xl border border-gray-200 shadow-lg">
+            <form method="POST" class="p-8">
+                {% csrf_token %}
+                
+                <div class="space-y-8">
+                    <!-- Basic Information -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <!-- Skill Name -->
+                        <div class="space-y-3">
+                            <label for="name" class="block text-sm font-medium text-gray-700">
+                                Skill Name <span class="text-red-500">*</span>
+                            </label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                    </svg>
+                                </div>
+                                <input type="text" id="name" name="name" value="{{ skill.name|default:'' }}" 
+                                       class="block w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors" 
+                                       placeholder="e.g., Python, React, Leadership" required>
+                            </div>
+                        </div>
+
+                        <!-- Category -->
+                        <div class="space-y-3">
+                            <label for="category" class="block text-sm font-medium text-gray-700">
+                                Category <span class="text-red-500">*</span>
+                            </label>
+                            <select id="category" name="category" required
+                                    class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors">
+                                <option value="">Select Category</option>
+                                <option value="programming" {% if skill.category == 'programming' %}selected{% endif %}>Programming</option>
+                                <option value="framework" {% if skill.category == 'framework' %}selected{% endif %}>Framework</option>
+                                <option value="tool" {% if skill.category == 'tool' %}selected{% endif %}>Tool</option>
+                                <option value="language" {% if skill.category == 'language' %}selected{% endif %}>Language</option>
+                                <option value="soft" {% if skill.category == 'soft' %}selected{% endif %}>Soft Skill</option>
+                                <option value="design" {% if skill.category == 'design' %}selected{% endif %}>Design</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Proficiency -->
+                    <div class="space-y-4">
+                        <label for="proficiency" class="block text-sm font-medium text-gray-700">
+                            Proficiency Level: <span id="proficiencyValue" class="text-purple-600 font-bold">{{ skill.proficiency|default:50 }}</span>%
+                        </label>
+                        <div class="space-y-2">
+                            <input type="range" id="proficiency" name="proficiency" min="0" max="100" 
+                                   value="{{ skill.proficiency|default:50 }}" 
+                                   class="w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                                   oninput="document.getElementById('proficiencyValue').textContent = this.value">
+                            <div class="flex justify-between text-xs text-gray-500">
+                                <span>Beginner</span>
+                                <span>Intermediate</span>
+                                <span>Advanced</span>
+                                <span>Expert</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Icon and Order -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <!-- Icon -->
+                        <div class="space-y-3">
+                            <label for="icon" class="block text-sm font-medium text-gray-700">
+                                FontAwesome Icon Class
+                            </label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+                                    </svg>
+                                </div>
+                                <input type="text" id="icon" name="icon" value="{{ skill.icon|default:'' }}"
+                                       class="block w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors"
+                                       placeholder="e.g., fab fa-python, fas fa-code">
+                            </div>
+                            <p class="text-xs text-gray-500">Leave empty for default icon. Use FontAwesome classes.</p>
+                        </div>
+
+                        <!-- Display Order -->
+                        <div class="space-y-3">
+                            <label for="order" class="block text-sm font-medium text-gray-700">
+                                Display Order
+                            </label>
+                            <input type="number" id="order" name="order" value="{{ skill.order|default:0 }}" min="0"
+                                   class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors">
+                            <p class="text-xs text-gray-500">Lower numbers appear first</p>
+                        </div>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="space-y-3">
+                        <label for="description" class="block text-sm font-medium text-gray-700">
+                            Description
+                        </label>
+                        <textarea id="description" name="description" rows="4"
+                                  class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors resize-none"
+                                  placeholder="Brief description of the skill and your experience with it...">{{ skill.description|default:'' }}</textarea>
+                    </div>
+
+                    <!-- Active Status -->
+                    <div class="flex items-center space-x-3 p-4 bg-gray-50 rounded-xl">
+                        <input type="checkbox" id="is_active" name="is_active" 
+                               {% if skill.is_active or not skill %}checked{% endif %}
+                               class="w-4 h-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+                        <label for="is_active" class="text-sm text-gray-700">
+                            This skill is active and visible on my portfolio
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="flex items-center justify-between mt-12 pt-8 border-t border-gray-200">
+                    <div>
+                        {% if skill %}
+                        <form method="POST" action="{% url 'skills:delete' skill.id %}" class="inline">
+                            {% csrf_token %}
+                            <button type="submit" 
+                                    onclick="return confirm('Are you sure you want to delete this skill? This action cannot be undone.')"
+                                    class="px-6 py-3 border border-red-300 text-red-600 font-medium rounded-xl hover:bg-red-50 transition-colors">
+                                Delete Skill
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                    <div class="flex space-x-4">
+                        <a href="{% url 'skills:list' %}" 
+                           class="px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition-colors">
+                            Cancel
+                        </a>
+                        <button type="submit" 
+                                class="px-8 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-medium rounded-xl hover:from-purple-700 hover:to-blue-700 transition-all shadow-lg">
+                            {{ submit_button_text }}
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Icon Preview -->
+        {% if skill.icon %}
+        <div class="mt-8 bg-white rounded-2xl border border-gray-200 shadow-lg p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Icon Preview</h3>
+            <div class="flex items-center space-x-4">
+                <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
+                    <i class="{{ skill.icon }} text-white text-2xl"></i>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-600">Current icon class:</p>
+                    <code class="text-sm font-mono text-purple-600 bg-purple-50 px-2 py-1 rounded">{{ skill.icon }}</code>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .slider::-webkit-slider-thumb {
+        appearance: none;
+        height: 24px;
+        width: 24px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #8b5cf6, #3b82f6);
+        cursor: pointer;
+        box-shadow: 0 4px 8px rgba(139, 92, 246, 0.4);
+        border: 3px solid white;
+    }
+
+    .slider::-moz-range-thumb {
+        height: 24px;
+        width: 24px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #8b5cf6, #3b82f6);
+        cursor: pointer;
+        border: 3px solid white;
+        box-shadow: 0 4px 8px rgba(139, 92, 246, 0.4);
+    }
+
+    .slider::-webkit-slider-track {
+        background: linear-gradient(to right, #e5e7eb, #e5e7eb);
+        border-radius: 10px;
+        height: 8px;
+    }
+
+    .slider::-moz-range-track {
+        background: linear-gradient(to right, #e5e7eb, #e5e7eb);
+        border-radius: 10px;
+        height: 8px;
+        border: none;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Update proficiency value display when page loads
+        const proficiencySlider = document.getElementById('proficiency');
+        if (proficiencySlider) {
+            document.getElementById('proficiencyValue').textContent = proficiencySlider.value;
+        }
+
+        // Add real-time icon preview
+        const iconInput = document.getElementById('icon');
+        if (iconInput) {
+            iconInput.addEventListener('input', function() {
+                updateIconPreview(this.value);
+            });
+        }
+    });
+
+    function updateIconPreview(iconClass) {
+        // You could implement a live preview here if needed
+        console.log('Icon class updated:', iconClass);
+    }
+</script>
+
+{% endblock content %}
