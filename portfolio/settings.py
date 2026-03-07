@@ -38,11 +38,11 @@ INSTALLED_APPS = [
     'app',
     'projects',
     'skills',
-    'testimonials',
+    # 'testimonials',
     'resume',
     'contacts',
-    'UserProfile',
-    'settings',
+    # 'UserProfile',
+    # 'settings',
 ]
 
 MIDDLEWARE = [
