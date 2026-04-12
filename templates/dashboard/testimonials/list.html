@@ -1,0 +1,286 @@
+{% extends "layouts/_base.html" %}
+{% block title %}Testimonials{% endblock title %}
+{% block content %}
+
+<div class="w-full sm:px-6 lg:px-4">
+    <!-- Delete Confirmation Modal -->
+    <div id="delete-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 hidden">
+        <div class="bg-white rounded-xl shadow-xl max-w-md w-full transform transition-all duration-300 scale-95 opacity-0">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-bold text-gray-900">Confirm Deletion</h3>
+                    <button id="cancel-delete" class="text-gray-400 hover:text-gray-500">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <p class="text-gray-600 mb-6">Are you sure you want to delete this testimonial? This action cannot be undone.</p>
+                <div class="flex justify-end space-x-3">
+                    <form id="deleteForm" action="" method="POST">
+                        {% csrf_token %}
+                        <button type="submit" id="confirm-delete" class="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors">
+                            Delete
+                        </button>
+                        <button type="button" id="cancel-delete-btn" class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors">
+                            Cancel
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="sm:flex sm:items-center sm:justify-between mb-8">
+        <div class="space-y-1">
+            <h1 class="text-2xl font-bold text-gray-900">Testimonials</h1>
+            <p class="text-sm text-gray-600">Manage client testimonials and reviews</p>
+        </div>
+        <div class="mt-4 sm:mt-0">
+            <a href="{% url 'testimonials:create' %}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                Add New Testimonial
+            </a>
+        </div>
+    </div>
+
+    <!-- Search and Filter -->
+    <div class="mb-6">
+        <form method="GET" class="flex items-center space-x-4">
+            <div class="relative flex-1 max-w-md">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+                <input type="text" name="q" value="{{ search_query }}" 
+                       class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                       placeholder="Search testimonials...">
+            </div>
+            <div class="flex items-center">
+                <input type="checkbox" name="featured" id="featured" value="true" {% if filter_featured %}checked{% endif %} 
+                       class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                <label for="featured" class="ml-2 block text-sm text-gray-900">
+                    Featured only
+                </label>
+            </div>
+            <button type="submit" class="px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors">
+                Filter
+            </button>
+            {% if search_query or filter_featured %}
+            <a href="{% url 'testimonials:list' %}" class="px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                Clear
+            </a>
+            {% endif %}
+        </form>
+    </div>
+
+    <!-- Testimonials Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {% for testimonial in page_obj.object_list %}
+        <div class="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200">
+            <div class="p-6">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex items-center space-x-4">
+                        <div class="flex-shrink-0">
+                            {% if testimonial.client_image %}
+                            <img class="h-12 w-12 rounded-full object-cover border-2 border-gray-200" 
+                                 src="{{ testimonial.client_image.url }}" alt="{{ testimonial.client_name }}">
+                            {% else %}
+                            <div class="h-12 w-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg">
+                                {{ testimonial.client_name|slice:":1" }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900">{{ testimonial.client_name }}</h3>
+                            <div class="flex items-center text-sm text-gray-600">
+                                {% if testimonial.client_position %}
+                                <span>{{ testimonial.client_position }}</span>
+                                {% if testimonial.client_company %}
+                                <span class="mx-1">•</span>
+                                {% endif %}
+                                {% endif %}
+                                {% if testimonial.client_company %}
+                                <span>{{ testimonial.client_company }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        {% if testimonial.is_featured %}
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                            </svg>
+                            Featured
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Rating Stars -->
+                <div class="flex items-center mb-3">
+                    <div class="flex items-center">
+                        {% for i in "12345" %}
+                        <svg class="w-5 h-5 {% if forloop.counter <= testimonial.rating %}text-yellow-400{% else %}text-gray-300{% endif %}" 
+                             fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                        </svg>
+                        {% endfor %}
+                    </div>
+                    <span class="ml-2 text-sm text-gray-600">{{ testimonial.created_at|date:"M d, Y" }}</span>
+                </div>
+                
+                <!-- Testimonial Content -->
+                <div class="mb-4">
+                    <p class="text-gray-700 leading-relaxed line-clamp-3">{{ testimonial.content }}</p>
+                </div>
+                
+                <!-- Project Link -->
+                {% if testimonial.project_url %}
+                <div class="mb-4">
+                    <a href="{{ testimonial.project_url }}" target="_blank" 
+                       class="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 hover:underline">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+                        </svg>
+                        View Project
+                    </a>
+                </div>
+                {% endif %}
+                
+                <!-- Actions -->
+                <div class="flex justify-end space-x-2 pt-4 border-t border-gray-100">
+                    <a href="{% url 'testimonials:edit' testimonial.id %}" 
+                       class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        Edit
+                    </a>
+                    <button onclick="showDeleteModal('{% url 'testimonials:delete' testimonial.id %}')" 
+                            class="inline-flex items-center px-3 py-2 border border-red-200 rounded-lg text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 transition-colors">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                        Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-2">
+            <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-16 text-center">
+                <svg class="mx-auto h-16 w-16 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                </svg>
+                <h3 class="mt-4 text-lg font-medium text-gray-900">No testimonials found</h3>
+                <p class="mt-2 text-sm text-gray-500">
+                    {% if search_query or filter_featured %}
+                        Try adjusting your filters to find what you're looking for.
+                    {% else %}
+                        Get started by adding your first client testimonial.
+                    {% endif %}
+                </p>
+                <div class="mt-6">
+                    <a href="{% url 'testimonials:create' %}" 
+                       class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700">
+                        <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                        New Testimonial
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <div class="mt-8 flex justify-center">
+        <nav class="flex items-center space-x-2">
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if filter_featured %}&featured=true{% endif %}" 
+                   class="inline-flex items-center px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                    Previous
+                </a>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <span class="inline-flex items-center px-4 py-2 rounded-lg border border-blue-500 text-sm font-medium bg-blue-500 text-white">
+                        {{ num }}
+                    </span>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <a href="?page={{ num }}{% if search_query %}&q={{ search_query }}{% endif %}{% if filter_featured %}&featured=true{% endif %}" 
+                       class="inline-flex items-center px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                        {{ num }}
+                    </a>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if filter_featured %}&featured=true{% endif %}" 
+                   class="inline-flex items-center px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                    Next
+                    <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </a>
+            {% endif %}
+        </nav>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    // Delete Modal Handling
+    const deleteModal = document.getElementById('delete-modal');
+    const modalContent = deleteModal.querySelector('div > div');
+    const cancelDeleteBtns = [document.getElementById('cancel-delete'), document.getElementById('cancel-delete-btn')];
+    
+    function showDeleteModal(deleteUrl) {
+        document.getElementById('deleteForm').action = deleteUrl;
+        deleteModal.classList.remove('hidden');
+        setTimeout(() => {
+            modalContent.classList.remove('scale-95', 'opacity-0');
+            modalContent.classList.add('scale-100', 'opacity-100');
+        }, 10);
+    }
+
+    function hideDeleteModal() {
+        modalContent.classList.remove('scale-100', 'opacity-100');
+        modalContent.classList.add('scale-95', 'opacity-0');
+        setTimeout(() => {
+            deleteModal.classList.add('hidden');
+        }, 200);
+    }
+
+    cancelDeleteBtns.forEach(btn => {
+        if (btn) btn.addEventListener('click', hideDeleteModal);
+    });
+
+    deleteModal.addEventListener('click', function(e) {
+        if (e.target === deleteModal) {
+            hideDeleteModal();
+        }
+    });
+</script>
+
+<style>
+    .line-clamp-3 {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+</style>
+
+{% endblock content %}

@@ -70,7 +70,7 @@
                     
                     <!-- Testimonials -->
                     <li>
-                        <a href="#" class="nav-item flex items-center p-3 rounded-lg text-sm hover:bg-white/10 transition-colors {% if request.path == '/testimonials' %}bg-white/15{% endif %}">
+                        <a href="{% url "testimonials:list" %}" class="nav-item flex items-center p-3 rounded-lg text-sm hover:bg-white/10 transition-colors {% if request.path == '/testimonials' %}bg-white/15{% endif %}">
                             <div class="nav-icon w-6 h-6 rounded-lg flex items-center justify-center mr-2 {% if request.path == '/testimonials' %}text-white{% else %}text-white/70{% endif %}">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
