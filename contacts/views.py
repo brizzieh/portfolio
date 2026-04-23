@@ -3,6 +3,8 @@ from .models import Contact
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
 
 def contact_list(request):
     search_query = request.GET.get('q', '')
@@ -38,3 +40,16 @@ def delete(request, id):
         'contact': contact
     }
     return render(request, 'dashboard/contacts/delete.html', context)
+
+@api_view(['POST'])
+def send_message(request):
+    name = request.data.get('name')
+    email = request.data.get('email')
+    subject = request.data.get('subject')
+    message = request.data.get('message')
+
+    if not name or not email or not subject or not message:
+        return Response({'error': 'All fields are required.'}, status=400)
+
+    Contact.objects.create(name=name, email=email, subject=subject, message=message)
+    return Response({'success': 'Message sent successfully!'}, status=201)
