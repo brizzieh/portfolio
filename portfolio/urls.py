@@ -11,15 +11,15 @@ urlpatterns = [
     path('dashboard/', include('app.urls')),
     path('dashboard/projects/', include('projects.urls')),
     path('dashboard/skills/', include('skills.urls')),
-    # path('dashboard/testimonials/', include('testimonials.urls')),
+    path('dashboard/testimonials/', include('testimonials.urls')),
     path('dashboard/resume/', include('resume.urls')),
     path('dashboard/contacts/', include('contacts.urls')),
     # path('dashboard/profile/', include('UserProfile.urls')),
     # path('dashboard/settings/', include('settings.urls')),
     
     
-    # Website URLs
-    
+    # API URLs
+    path('api/v1/', include('api.urls')),
 
     # Authentication URLs
     
